@@ -12,23 +12,28 @@ const TEST_SCENE_1_PATH = "res://demo_test_scene_manager/test_scene_1.tscn"
 @onready var label_info: Label = $VBoxContainer/Label_Info
 @onready var progress_bar: ProgressBar = $ProgressBar
 
-
+var is_first_enter:bool = true
 
 
 func _ready():
 	print("=== Test Scene 2 Loaded ===")
-	
+	set_process(false)
 	# 连接按钮信号
 	#button_main.pressed.connect(_on_main_pressed)
 	#button_scene1.pressed.connect(_on_scene1_pressed)
 	#button_preload_main.pressed.connect(_on_preload_main_pressed)
-	
+	is_first_enter = false
 	# 更新信息
 	_update_info()
 	
 	# 连接SceneManager信号
 	LongSceneManager.scene_switch_started.connect(_on_scene_switch_started)
 	LongSceneManager.scene_switch_completed.connect(_on_scene_switch_completed)
+	
+func _enter_tree() -> void:
+	set_process(false)
+	if not is_first_enter:
+		_update_info()
 
 func _process(delta):
 	#"""每帧更新预加载进度"""
@@ -41,6 +46,7 @@ func _process(delta):
 func _update_info():
 	#"""更新显示信息"""
 	var cache_info = LongSceneManager.get_cache_info()
+	progress_bar.value = 0
 	
 	label_info.text = """
     当前场景: Test Scene 2
@@ -67,6 +73,7 @@ func _on_scene1_pressed():
 func _on_preload_main_pressed():
 	#"""预加载主场景"""
 	print("预加载主场景")
+	set_process(true)
 	LongSceneManager.preload_scene(MAIN_SCENE_PATH)
 	_update_info()
 

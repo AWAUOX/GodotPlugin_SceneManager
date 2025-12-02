@@ -11,59 +11,59 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_7t0ds")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
-layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 20
 alignment = 1
 
-[node name="Button_Scene1" type="Button" parent="HBoxContainer/VBoxContainer"]
+[node name="label_scene" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+text = "Main Scene"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Button_Scene1" type="Button" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 text = "Button_Scene1"
 
-[node name="Button_Scene2" type="Button" parent="HBoxContainer/VBoxContainer"]
+[node name="Button_Scene2" type="Button" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 text = "Button_Scene2"
 
-[node name="Button_Preload1" type="Button" parent="HBoxContainer/VBoxContainer"]
+[node name="Button_Preload1" type="Button" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 text = "Button_Preload1"
 
-[node name="Button_Preload2" type="Button" parent="HBoxContainer/VBoxContainer"]
+[node name="Button_Preload2" type="Button" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 text = "Button_Preload2"
 
-[node name="Button_ClearCache" type="Button" parent="HBoxContainer/VBoxContainer"]
+[node name="Button_ClearCache" type="Button" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 text = "Button_ClearCache"
 
-[node name="Label_Info" type="Label" parent="HBoxContainer/VBoxContainer"]
+[node name="Label_Info" type="Label" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 text = "Label_Info"
-
-[node name="Label" type="Label" parent="HBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 64
-text = "main scene"
 horizontal_alignment = 1
 vertical_alignment = 1
+autowrap_mode = 3
 
-[connection signal="pressed" from="HBoxContainer/VBoxContainer/Button_Scene1" to="." method="_on_button_pressed"]
-[connection signal="pressed" from="HBoxContainer/VBoxContainer/Button_Scene2" to="." method="_on_button_pressed"]
-[connection signal="pressed" from="HBoxContainer/VBoxContainer/Button_Preload1" to="." method="_on_button_pressed"]
-[connection signal="pressed" from="HBoxContainer/VBoxContainer/Button_Preload2" to="." method="_on_button_pressed"]
-[connection signal="pressed" from="HBoxContainer/VBoxContainer/Button_ClearCache" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/Button_Scene1" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/Button_Scene2" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/Button_Preload1" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/Button_Preload2" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/Button_ClearCache" to="." method="_on_button_pressed"]

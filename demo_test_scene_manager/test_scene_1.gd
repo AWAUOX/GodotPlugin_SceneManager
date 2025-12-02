@@ -4,7 +4,7 @@ extends Node2D
 const MAIN_SCENE_PATH = "res://demo_test_scene_manager/main_scene.tscn"
 const TEST_SCENE_2_PATH = "res://demo_test_scene_manager/test_scene_2.tscn"
 
-
+var is_first_enter:bool = true
 
 @onready var button_main: Button = $VBoxContainer/Button_Main
 @onready var button_scene2: Button = $VBoxContainer/Button_Scene2
@@ -24,10 +24,15 @@ func _ready():
 	
 	# 更新信息标签
 	_update_info_label()
+	is_first_enter = false
 	
 	# 连接SceneManager信号
 	LongSceneManager.scene_switch_started.connect(_on_scene_switch_started)
 	LongSceneManager.scene_switch_completed.connect(_on_scene_switch_completed)
+	
+func _enter_tree() -> void:
+	if not is_first_enter:
+		_update_info_label()
 
 func _update_info_label():
 	#"""更新显示信息"""

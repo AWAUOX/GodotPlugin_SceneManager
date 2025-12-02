@@ -2,11 +2,9 @@
 extends Node
 class_name SceneManager
 
-"""
-全局场景管理器插件
-功能：支持自定义加载屏幕的场景切换、预加载和LRU缓存
-支持任意节点类型的加载屏幕
-"""
+# 全局场景管理器插件
+# 功能：支持自定义加载屏幕的场景切换、预加载和LRU缓存
+# 支持任意节点类型的加载屏幕
 
 # ==================== 常量和枚举 ====================
 
@@ -75,7 +73,6 @@ class CachedScene:
 # ==================== 生命周期函数 ====================
 
 func _ready():
-	#"""场景管理器初始化"""
 	print("[SceneManager] 场景管理器单例初始化")
 	
 	# 初始化默认加载屏幕
@@ -92,7 +89,6 @@ func _ready():
 # ==================== 初始化函数 ====================
 
 func _init_default_load_screen():
-	#"""初始化插件内置的默认加载屏幕"""
 	print("[SceneManager] 初始化默认加载屏幕")
 	
 	if ResourceLoader.exists(DEFAULT_LOAD_SCREEN_PATH):
@@ -123,7 +119,6 @@ func _init_default_load_screen():
 	print("[SceneManager] 简单加载屏幕创建完成")
 
 func _create_simple_load_screen() -> Node:
-	#"""创建简单的加载屏幕作为后备"""
 	# 创建一个简单的CanvasLayer作为默认加载屏幕
 	var canvas_layer = CanvasLayer.new()
 	canvas_layer.name = "SimpleLoadScreen"
@@ -164,14 +159,6 @@ func _create_simple_load_screen() -> Node:
 # ==================== 公开API - 场景切换 ====================
 
 func switch_scene(new_scene_path: String, use_cache: bool = true, load_screen_path: String = "") -> void:
-	#"""
-	#切换到新场景，支持自定义加载屏幕
-	#
-	#参数:
-	#- new_scene_path: 目标场景路径
-	#- use_cache: 是否使用缓存（默认true）
-	#- load_screen_path: 自定义加载屏幕路径（空字符串则使用默认）
-	#"""
 	print("[SceneManager] 开始切换场景到: ", new_scene_path)
 	
 	# 如果全局配置强制使用默认加载屏幕
@@ -217,12 +204,6 @@ func switch_scene(new_scene_path: String, use_cache: bool = true, load_screen_pa
 # ==================== 公开API - 预加载 ====================
 
 func preload_scene(scene_path: String) -> void:
-	#"""
-	#预加载场景到内存（不实例化）
-	#
-	#参数:
-	#- scene_path: 要预加载的场景路径
-	#"""
 	# 检查路径有效性
 	if not ResourceLoader.exists(scene_path):
 		push_error("[SceneManager] 错误：预加载场景路径不存在: ", scene_path)
@@ -261,7 +242,6 @@ func preload_scene(scene_path: String) -> void:
 # ==================== 公开API - 缓存管理 ====================
 
 func clear_cache() -> void:
-	#"""清空所有缓存场景"""
 	print("[SceneManager] 清空缓存...")
 	
 	for scene_path in scene_cache:
@@ -275,7 +255,6 @@ func clear_cache() -> void:
 	print("[SceneManager] 缓存已清空")
 
 func get_cache_info() -> Dictionary:
-	#"""获取缓存信息"""
 	var cached_scenes = []
 	for path in scene_cache:
 		var cached = scene_cache[path]
@@ -294,21 +273,17 @@ func get_cache_info() -> Dictionary:
 	}
 
 func is_scene_cached(scene_path: String) -> bool:
-	#"""检查场景是否在缓存中"""
 	return scene_cache.has(scene_path)
 
 # ==================== 公开API - 实用函数 ====================
 
 func get_current_scene() -> Node:
-	#"""获取当前场景实例"""
 	return current_scene
 
 func get_previous_scene_path() -> String:
-	#"""获取上一个场景路径"""
 	return previous_scene_path
 
 func get_loading_progress(scene_path: String) -> float:
-	#"""获取场景加载进度（0.0-1.0）"""
 	if loading_scene_path != scene_path or loading_state != LoadState.LOADING:
 		return 1.0 if scene_cache.has(scene_path) else 0.0
 	
@@ -321,7 +296,6 @@ func get_loading_progress(scene_path: String) -> float:
 	return 0.0
 
 func set_max_cache_size(new_size: int) -> void:
-	#"""动态设置最大缓存大小"""
 	if new_size < 1:
 		push_error("[SceneManager] 错误：缓存大小必须大于0")
 		return
@@ -336,10 +310,6 @@ func set_max_cache_size(new_size: int) -> void:
 # ==================== 加载屏幕管理 ====================
 
 func _get_load_screen_instance(load_screen_path: String) -> Node:
-	#"""
-	#获取加载屏幕实例
-	#参数为空时返回默认，否则加载指定场景
-	#"""
 	if load_screen_path == "":
 		# 使用默认加载屏幕
 		if default_load_screen:
@@ -358,7 +328,6 @@ func _get_load_screen_instance(load_screen_path: String) -> Node:
 			var custom_scene = load(load_screen_path)
 			if custom_scene:
 				var instance = custom_scene.instantiate()
-				
 				add_child(instance)
 				print("[SceneManager] 使用自定义加载屏幕: ", load_screen_path)
 				return instance
@@ -370,7 +339,6 @@ func _get_load_screen_instance(load_screen_path: String) -> Node:
 			return default_load_screen
 
 func _show_load_screen(load_screen_instance: Node) -> void:
-	#"""显示指定的加载屏幕实例"""
 	if not load_screen_instance:
 		print("[SceneManager] 无加载屏幕，直接切换")
 		return
@@ -382,6 +350,8 @@ func _show_load_screen(load_screen_instance: Node) -> void:
 		load_screen_instance.visible = true
 	elif load_screen_instance.has_method("set_visible"):
 		load_screen_instance.set_visible(true)
+	elif load_screen_instance.has_method("show"):
+		load_screen_instance.show()
 	
 	# 如果有淡入方法则调用
 	if load_screen_instance.has_method("fade_in"):
@@ -390,15 +360,11 @@ func _show_load_screen(load_screen_instance: Node) -> void:
 	elif load_screen_instance.has_method("show_loading"):
 		# 兼容其他可能的接口
 		await load_screen_instance.show_loading()
-	elif load_screen_instance.has_method("show"):
-		# 通用show方法
-		load_screen_instance.show()
 	
 	load_screen_shown.emit(load_screen_instance)
 	print("[SceneManager] 加载屏幕显示完成")
 
 func _hide_load_screen(load_screen_instance: Node) -> void:
-	#"""隐藏指定的加载屏幕实例"""
 	if not load_screen_instance:
 		return
 	
@@ -431,7 +397,6 @@ func _hide_load_screen(load_screen_instance: Node) -> void:
 # ==================== 场景切换处理函数 ====================
 
 func _handle_preloading_scene(scene_path: String, load_screen_instance: Node, use_cache: bool) -> void:
-	#"""处理正在预加载的场景"""
 	# 显示加载屏幕
 	await _show_load_screen(load_screen_instance)
 	
@@ -442,7 +407,6 @@ func _handle_preloading_scene(scene_path: String, load_screen_instance: Node, us
 	await _instantiate_and_switch(scene_path, load_screen_instance, use_cache)
 
 func _handle_cached_scene(scene_path: String, load_screen_instance: Node) -> void:
-	#"""处理从缓存加载的场景"""
 	# 显示加载屏幕
 	await _show_load_screen(load_screen_instance)
 	
@@ -450,7 +414,6 @@ func _handle_cached_scene(scene_path: String, load_screen_instance: Node) -> voi
 	await _switch_to_cached_scene(scene_path, load_screen_instance)
 
 func _handle_direct_load(scene_path: String, load_screen_instance: Node, use_cache: bool) -> void:
-	#"""处理直接加载的场景"""
 	# 显示加载屏幕
 	await _show_load_screen(load_screen_instance)
 	
@@ -464,7 +427,6 @@ func _handle_direct_load(scene_path: String, load_screen_instance: Node, use_cac
 # ==================== 加载和切换核心函数 ====================
 
 func _wait_for_preload(scene_path: String) -> void:
-	#"""等待预加载完成"""
 	print("[SceneManager] 等待预加载完成: ", scene_path)
 	
 	var wait_start_time = Time.get_ticks_msec()
@@ -480,7 +442,6 @@ func _wait_for_preload(scene_path: String) -> void:
 	print("[SceneManager] 预加载等待完成")
 
 func _instantiate_and_switch(scene_path: String, load_screen_instance: Node, use_cache: bool) -> void:
-	#"""实例化预加载的场景并切换"""
 	if not loading_resource or loading_scene_path != scene_path:
 		push_error("[SceneManager] 预加载资源不存在或路径不匹配")
 		await _hide_load_screen(load_screen_instance)
@@ -504,7 +465,6 @@ func _instantiate_and_switch(scene_path: String, load_screen_instance: Node, use
 	loading_resource = null
 
 func _switch_to_cached_scene(scene_path: String, load_screen_instance: Node) -> void:
-	#"""切换到缓存中的场景"""
 	if not scene_cache.has(scene_path):
 		push_error("[SceneManager] 缓存中找不到场景: ", scene_path)
 		await _hide_load_screen(load_screen_instance)
@@ -527,7 +487,6 @@ func _switch_to_cached_scene(scene_path: String, load_screen_instance: Node) -> 
 	await _perform_scene_switch(cached.scene_instance, scene_path, load_screen_instance, true)
 
 func _load_and_switch(scene_path: String, load_screen_instance: Node, use_cache: bool) -> void:
-	#"""直接加载并切换场景"""
 	print("[SceneManager] 加载场景: ", scene_path)
 	
 	# 加载场景资源
@@ -548,7 +507,6 @@ func _load_and_switch(scene_path: String, load_screen_instance: Node, use_cache:
 	await _perform_scene_switch(new_scene, scene_path, load_screen_instance, use_cache)
 
 func _perform_scene_switch(new_scene: Node, new_scene_path: String, load_screen_instance: Node, use_cache: bool) -> void:
-	#"""执行实际场景切换的核心逻辑"""
 	print("[SceneManager] 执行场景切换到: ", new_scene_path)
 	
 	# 1. 更新场景引用
@@ -594,14 +552,12 @@ func _perform_scene_switch(new_scene: Node, new_scene_path: String, load_screen_
 # ==================== 缓存管理内部函数 ====================
 
 func _cache_current_scene() -> void:
-	#"""将当前场景加入缓存"""
 	if not current_scene:
 		return
 	
 	_cache_scene(current_scene)
 
 func _cache_scene(scene: Node) -> void:
-	#"""将指定场景加入缓存"""
 	var scene_path = scene.scene_file_path
 	if scene_path == "":
 		print("[SceneManager] 警告：场景没有文件路径，无法缓存")
@@ -630,7 +586,6 @@ func _cache_scene(scene: Node) -> void:
 		_remove_oldest_cached_scene()
 
 func _update_cache_access(scene_path: String) -> void:
-	#"""更新缓存的访问顺序（LRU算法）"""
 	var index = cache_access_order.find(scene_path)
 	if index != -1:
 		cache_access_order.remove_at(index)
@@ -642,7 +597,6 @@ func _update_cache_access(scene_path: String) -> void:
 		cached.cached_time = Time.get_unix_time_from_system()
 
 func _remove_oldest_cached_scene() -> void:
-	#"""移除最旧的缓存场景"""
 	if cache_access_order.size() == 0:
 		return
 	
@@ -660,14 +614,13 @@ func _remove_oldest_cached_scene() -> void:
 # ==================== 预加载内部函数 ====================
 
 func _async_preload_scene(scene_path: String) -> void:
-	#"""异步预加载场景"""
 	print("[SceneManager] 异步预加载: ", scene_path)
 	
-	# 使用ResourceLoader异步加载
+	# 使用ResourceLoader异步加载 - 开启多线程加载
 	var load_start_time = Time.get_ticks_msec()
 	ResourceLoader.load_threaded_request(scene_path)
 	
-	# 等待加载完成
+	# 等待加载完成 - 使用协程方式
 	while true:
 		var status = ResourceLoader.load_threaded_get_status(scene_path)
 		
@@ -681,6 +634,7 @@ func _async_preload_scene(scene_path: String) -> void:
 						print("[SceneManager] 异步加载进度: ", progress[0] * 100, "%")
 					load_start_time = Time.get_ticks_msec()
 				
+				# 每帧检查一次，不会阻塞主线程
 				await get_tree().process_frame
 			
 			ResourceLoader.THREAD_LOAD_LOADED:
@@ -701,27 +655,12 @@ func _async_preload_scene(scene_path: String) -> void:
 				return
 
 func _sync_preload_scene(scene_path: String) -> void:
-	#"""同步预加载场景"""
 	print("[SceneManager] 同步预加载: ", scene_path)
 	loading_resource = load(scene_path)
-
-# ==================== 错误处理 ====================
-
-func _handle_scene_switch_error(error: String, load_screen_instance: Node) -> void:
-	#"""处理场景切换错误"""
-	push_error("[SceneManager] 场景切换错误: ", error)
-	
-	# 隐藏加载屏幕
-	if load_screen_instance:
-		_hide_load_screen(load_screen_instance)
-	
-	# 发出错误信号
-	scene_switch_completed.emit("")  # 空路径表示错误
 
 # ==================== 调试和工具函数 ====================
 
 func print_debug_info() -> void:
-	#"""打印调试信息"""
 	print("\n=== SceneManager 调试信息 ===")
 	print("当前场景: ", current_scene_path if current_scene else "None")
 	print("上一个场景: ", previous_scene_path)
@@ -738,7 +677,6 @@ func print_debug_info() -> void:
 # ==================== 信号连接辅助 ====================
 
 func connect_all_signals(target: Object) -> void:
-	#"""连接所有信号到目标对象"""
 	if not target:
 		return
 	

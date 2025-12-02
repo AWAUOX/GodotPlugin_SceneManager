@@ -4,7 +4,7 @@ extends Control
 ## 在你的游戏脚本中使用
 ## 1. 使用默认加载屏幕切换场景
 #await LongSceneManager.switch_scene("res://scenes/level2.tscn")
-#
+
 ## 2. 使用自定义加载屏幕切换场景
 #await LongSceneManager.switch_scene(
 	#"res://scenes/level2.tscn", 
@@ -37,14 +37,17 @@ const TEST_SCENE_1_PATH = "res://demo_test_scene_manager/test_scene_1.tscn"
 const TEST_SCENE_2_PATH = "res://demo_test_scene_manager/test_scene_2.tscn"
 
 
-@onready var button_scene_1: Button = $HBoxContainer/VBoxContainer/Button_Scene1
-@onready var button_scene_2: Button = $HBoxContainer/VBoxContainer/Button_Scene2
-@onready var button_preload_1: Button = $HBoxContainer/VBoxContainer/Button_Preload1
-@onready var button_preload_2: Button = $HBoxContainer/VBoxContainer/Button_Preload2
-@onready var button_clear_cache: Button = $HBoxContainer/VBoxContainer/Button_ClearCache
-@onready var label_info: Label = $HBoxContainer/VBoxContainer/Label_Info
+
+@onready var button_scene_1: Button = $VBoxContainer/Button_Scene1
+@onready var button_scene_2: Button = $VBoxContainer/Button_Scene2
+@onready var button_preload_1: Button = $VBoxContainer/Button_Preload1
+@onready var button_preload_2: Button = $VBoxContainer/Button_Preload2
+@onready var button_clear_cache: Button = $VBoxContainer/Button_ClearCache
+@onready var label_info: Label = $VBoxContainer/Label_Info
 
 
+
+var is_first_enter:bool = true
 
 func _ready():
 	print("=== Main Scene Loaded ===")
@@ -58,11 +61,16 @@ func _ready():
 	
 	# 更新信息标签
 	_update_info_label()
+	is_first_enter = false
 	
 	# 连接SceneManager信号
 	LongSceneManager.scene_switch_started.connect(_on_scene_switch_started)
 	LongSceneManager.scene_switch_completed.connect(_on_scene_switch_completed)
 	LongSceneManager.scene_cached.connect(_on_scene_cached)
+	
+func _enter_tree() -> void:
+	if not is_first_enter:
+		_update_info_label()
 
 func _update_info_label():
 	#"""更新显示信息"""
@@ -79,7 +87,7 @@ func _update_info_label():
 		"previous": LongSceneManager.get_previous_scene_path(),
 		"cache_count": cache_info.size,
 		"cache_max": cache_info.max_size,
-		"cache_list": ", ".join(cache_info.access_order)
+		"cache_list": ",\n ".join(cache_info.access_order)
 	})
 
 func _on_scene1_pressed():
