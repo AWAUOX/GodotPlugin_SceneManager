@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://bo541wxqhhnl4"]
+
+[ext_resource type="Script" uid="uid://l71ryajpwdgd" path="res://addons/basic_scene_manager/ui/loading_screen/loading_black_screen.gd" id="1_jbrs5"]
+
+[node name="BlackScreen" type="CanvasLayer"]
+script = ExtResource("1_jbrs5")
+color = Color(0.28045467, 0.2804547, 0.28045467, 1)
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.23681614, 0.23681614, 0.23681611, 1)

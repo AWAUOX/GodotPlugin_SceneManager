@@ -15,12 +15,15 @@ func _disable_plugin() -> void:
 	remove_autoload_singleton(AUTOLOAD_NAME)
 
 func _enter_tree() -> void:
+	
 	# 注册自定义节点
+	var icon = get_editor_interface().get_editor_theme().get_icon("Node", "EditorIcons")
 	add_custom_type(
 		"LongSceneManager",
 		"Node",
 		preload("res://addons/basic_scene_manager/autoload/scene_manager.gd"),
-		preload("res://icon.svg")
+		#preload("res://icon.svg")
+		icon
 	)
 
 func _exit_tree() -> void:

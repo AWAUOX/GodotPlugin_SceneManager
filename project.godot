@@ -11,8 +11,13 @@ config_version=5
 [application]
 
 config/name="Plugin_SceneManager"
+run/main_scene="uid://dlbvo51yl80p"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+LongSceneManager="*res://addons/basic_scene_manager/autoload/scene_manager.gd"
 
 [display]
 
@@ -22,3 +27,7 @@ window/size/viewport_height=720
 [dotnet]
 
 project/assembly_name="Plugin_SceneManager"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/basic_scene_manager/plugin.cfg")
