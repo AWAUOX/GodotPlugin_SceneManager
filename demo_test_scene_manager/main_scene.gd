@@ -103,11 +103,13 @@ func _on_preload1_pressed():
 	#"""预加载场景1"""
 	print("预加载场景1")
 	LongSceneManager.preload_scene(TEST_SCENE_1_PATH)
+	_update_info_label()
 
 func _on_preload2_pressed():
 	#"""预加载场景2"""
 	print("预加载场景2")
 	LongSceneManager.preload_scene(TEST_SCENE_2_PATH)
+	_update_info_label()
 
 func _on_clear_cache_pressed():
 	#"""清空缓存"""

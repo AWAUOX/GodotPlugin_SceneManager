@@ -1,6 +1,6 @@
 # scene_manager.gd
 extends Node
-class_name SceneManager
+#class_name SceneManager
 
 # 全局场景管理器插件
 # 支持自定义加载屏幕的场景切换、预加载和LRU缓存

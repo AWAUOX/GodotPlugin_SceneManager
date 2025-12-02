@@ -30,4 +30,4 @@ project/assembly_name="Plugin_SceneManager"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/basic_scene_manager/plugin.cfg")
+enabled=PackedStringArray("res://addons/basic_scene_manager/plugin.cfg", "res://addons/long_scene_manager/plugin.cfg")
