@@ -17,6 +17,7 @@ config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 [autoload]
 
 LongSceneManager="*res://addons/long_scene_manager/autoload/scene_manager.gd"
+LongSceneManagerCs="*res://addons/long_scene_manager/autoload/LongSceneManagerCs.cs"
 
 [display]
 

@@ -31,6 +31,7 @@ signal load_screen_hidden(load_screen_instance: Node)
 
 @export_category("场景管理器全局配置")
 @export_range(1, 20) var max_cache_size: int = 8
+@export_range(1, 50) var max_preload_resource_cache_size: int = 20  # 预加载资源缓存最大容量
 @export var use_async_loading: bool = true
 @export var always_use_default_load_screen: bool = false
 
@@ -52,6 +53,7 @@ var cache_access_order: Array = []  # LRU缓存访问顺序记录
 
 # 新增：预加载资源缓存，存储预加载的PackedScene资源
 var preload_resource_cache: Dictionary = {}
+var preload_resource_cache_access_order: Array = []  # 预加载资源缓存LRU访问顺序记录
 
 class CachedScene:
 	var scene_instance: Node  # 缓存的节点实例
@@ -199,6 +201,8 @@ func preload_scene(scene_path: String) -> void:
 	# 检查是否已预加载或已缓存
 	if preload_resource_cache.has(scene_path):
 		print("[SceneManager] 场景已预加载: ", scene_path)
+		# 更新LRU访问顺序
+		_update_preload_resource_cache_access(scene_path)
 		return
 	
 	if (loading_scene_path == scene_path and loading_state == LoadState.LOADING) or \
@@ -221,9 +225,14 @@ func preload_scene(scene_path: String) -> void:
 	if loading_resource:
 		# 预加载完成后，将资源存入预加载资源缓存
 		preload_resource_cache[scene_path] = loading_resource
+		preload_resource_cache_access_order.append(scene_path)
 		loading_state = LoadState.LOADED
 		scene_preload_completed.emit(scene_path)
 		print("[SceneManager] 预加载完成，资源已缓存: ", scene_path)
+		
+		# 如果预加载资源缓存数量超过最大限制，则移除最旧的缓存项
+		if preload_resource_cache_access_order.size() > max_preload_resource_cache_size:
+			_remove_oldest_preload_resource()
 	else:
 		loading_state = LoadState.NOT_LOADED
 		loading_scene_path = ""
@@ -236,6 +245,7 @@ func clear_cache() -> void:
 	
 	# 清理预加载资源缓存
 	preload_resource_cache.clear()
+	preload_resource_cache_access_order.clear()
 	print("[SceneManager] 预加载资源缓存已清空")
 	
 	# 清理实例缓存
@@ -277,7 +287,9 @@ func get_cache_info() -> Dictionary:
 		"access_order": cache_access_order.duplicate(),
 		"cached_scenes": cached_scenes,
 		"preload_resource_cache": preloaded_scenes,
-		"preload_cache_size": preload_resource_cache.size()
+		"preload_cache_size": preload_resource_cache.size(),
+		"max_preload_resource_cache_size": max_preload_resource_cache_size,
+		"preload_resource_access_order": preload_resource_cache_access_order.duplicate()
 	}
 
 func is_scene_cached(scene_path: String) -> bool:
@@ -312,6 +324,18 @@ func set_max_cache_size(new_size: int) -> void:
 	
 	while cache_access_order.size() > max_cache_size:
 		_remove_oldest_cached_scene()
+
+# 添加设置预加载资源缓存最大容量的方法
+func set_max_preload_resource_cache_size(new_size: int) -> void:
+	if new_size < 1:
+		push_error("[SceneManager] 错误：预加载资源缓存大小必须大于0")
+		return
+	
+	max_preload_resource_cache_size = new_size
+	print("[SceneManager] 设置预加载资源缓存最大大小: ", max_preload_resource_cache_size)
+	
+	while preload_resource_cache_access_order.size() > max_preload_resource_cache_size:
+		_remove_oldest_preload_resource()
 
 # ==================== 加载屏幕管理 ====================
 
@@ -399,6 +423,11 @@ func _handle_preloaded_resource(scene_path: String, load_screen_instance: Node, 
 	var packed_scene = preload_resource_cache.get(scene_path)
 	preload_resource_cache.erase(scene_path)
 	
+	# 从预加载资源缓存访问顺序中移除
+	var index = preload_resource_cache_access_order.find(scene_path)
+	if index != -1:
+		preload_resource_cache_access_order.remove_at(index)
+	
 	if not packed_scene:
 		push_error("[SceneManager] 预加载资源缓存错误: ", scene_path)
 		await _hide_load_screen(load_screen_instance)
@@ -415,7 +444,12 @@ func _handle_preloading_scene(scene_path: String, load_screen_instance: Node, us
 	# 预加载完成后，将资源存入预加载资源缓存
 	if loading_resource:
 		preload_resource_cache[scene_path] = loading_resource
+		preload_resource_cache_access_order.append(scene_path)
 		print("[SceneManager] 预加载资源已缓存: ", scene_path)
+		
+		# 如果预加载资源缓存数量超过最大限制，则移除最旧的缓存项
+		if preload_resource_cache_access_order.size() > max_preload_resource_cache_size:
+			_remove_oldest_preload_resource()
 	
 	await _instantiate_and_switch(scene_path, load_screen_instance, use_cache)
 
@@ -606,6 +640,15 @@ func _update_cache_access(scene_path: String) -> void:
 		var cached = scene_cache[scene_path]
 		cached.cached_time = Time.get_unix_time_from_system()
 
+# 更新预加载资源缓存访问记录
+func _update_preload_resource_cache_access(scene_path: String) -> void:
+	# 从访问顺序列表中移除该场景
+	var index = preload_resource_cache_access_order.find(scene_path)
+	if index != -1:
+		preload_resource_cache_access_order.remove_at(index)
+	# 将该场景添加到访问顺序列表末尾（表示最近访问）
+	preload_resource_cache_access_order.append(scene_path)
+
 func _remove_oldest_cached_scene() -> void:
 	if cache_access_order.size() == 0:
 		return
@@ -621,6 +664,21 @@ func _remove_oldest_cached_scene() -> void:
 		scene_cache.erase(oldest_path)
 		scene_removed_from_cache.emit(oldest_path)
 		print("[SceneManager] 移除旧缓存: ", oldest_path)
+
+# 移除最旧的预加载资源
+func _remove_oldest_preload_resource() -> void:
+	# 检查预加载资源缓存是否为空
+	if preload_resource_cache_access_order.size() == 0:
+		return
+	
+	# 获取最早访问的场景路径
+	var oldest_path = preload_resource_cache_access_order[0]
+	preload_resource_cache_access_order.remove_at(0)
+	
+	# 从预加载资源缓存中移除该资源
+	if preload_resource_cache.has(oldest_path):
+		preload_resource_cache.erase(oldest_path)
+		print("[SceneManager] 移除旧预加载资源: ", oldest_path)
 
 # ==================== 预加载内部函数 ====================
 
@@ -716,8 +774,9 @@ func print_debug_info() -> void:
 	print("当前场景: ", current_scene_path if current_scene else "None")
 	print("上一个场景: ", previous_scene_path)
 	print("实例缓存数量: ", scene_cache.size(), "/", max_cache_size)
-	print("预加载资源缓存数量: ", preload_resource_cache.size())
+	print("预加载资源缓存数量: ", preload_resource_cache.size(), "/", max_preload_resource_cache_size)
 	print("缓存访问顺序: ", cache_access_order)
+	print("预加载资源缓存访问顺序: ", preload_resource_cache_access_order)
 	print("正在加载的场景: ", loading_scene_path if loading_scene_path != "" else "None")
 	print("加载状态: ", LoadState.keys()[loading_state])
 	print("默认加载屏幕: ", "已加载" if default_load_screen else "未加载")

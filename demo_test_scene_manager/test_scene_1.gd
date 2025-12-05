@@ -12,8 +12,6 @@ var is_first_enter:bool = true
 @onready var label_info: Label = $VBoxContainer/Label_Info
 
 
-
-
 func _ready():
 	print("=== Test Scene 1 Loaded ===")
 	
@@ -44,17 +42,19 @@ func _update_info_label():
 	var cache_info = LongSceneManager.get_cache_info()
 	
 	label_info.text = """
-    当前场景: Main Scene
     上一个场景: {previous}
     缓存实例场景数: {cache_count}/{cache_max}
+	缓存最大数值: {cache_max}
     缓存实例场景列表: {cache_list}
 	预加载资源缓存数量: {preload_cache_size}
+	预加载缓存最大数值: {preload_cache_max}
 	""".format({
 		"previous": LongSceneManager.get_previous_scene_path(),
 		"cache_count": cache_info.instance_cache_size,
 		"cache_max": cache_info.max_size,
 		"cache_list": ",\n ".join(cache_info.access_order),
 		"preload_cache_size": LongSceneManager.preload_resource_cache.size(),
+		"preload_cache_max": LongSceneManager.max_preload_resource_cache_size
 	})
 	
 

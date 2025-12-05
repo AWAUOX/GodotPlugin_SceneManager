@@ -23,8 +23,8 @@ func _enter_tree() -> void:
 		"Node",
 		
 		#choose gdscript or c# 
-		# preload("res://addons/long_scene_manager/autoload/scene_manager_cs.cs"),
-		preload("res://addons/long_scene_manager/autoload/scene_manager.gd"),
+		preload("res://addons/long_scene_manager/autoload/scene_manager_cs.cs"),
+		# preload("res://addons/long_scene_manager/autoload/scene_manager.gd"),
 
 		#preload("res://icon.svg")
 		icon

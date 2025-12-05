@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Godot;
 using Godot.Collections;
 
-namespace LongSceneManager
+namespace LongSceneManagerCs
 {
 	/// <summary>
 	/// 全局场景管理器插件
@@ -20,7 +20,7 @@ namespace LongSceneManager
 	/// 使用方式：
 	/// 在Godot项目中将其设为自动加载(AutoLoad)单例，然后通过调用SwitchScene等方法进行场景管理。
 	/// </summary>
-	public partial class SceneManager : Node
+	public partial class LongSceneManagerCs : Node
 	{
 		#region 常量和枚举
 		
@@ -334,6 +334,8 @@ namespace LongSceneManager
 			if (_preloadResourceCache.ContainsKey(scenePath))
 			{
 				GD.Print($"[SceneManager] 场景已预加载: {scenePath}");
+				// 更新LRU访问顺序
+				UpdatePreloadResourceCacheAccess(scenePath);
 				return;
 			}
 			
@@ -369,10 +371,17 @@ namespace LongSceneManager
 			{
 				// 预加载完成后，将资源存入预加载资源缓存
 				_preloadResourceCache[scenePath] = _loadingResource;
+				_preloadResourceCacheAccessOrder.Add(scenePath);
 				_loadingState = LoadState.Loaded;
 				// 发送预加载完成信号
 				EmitSignal(SignalName.ScenePreloadCompleted, scenePath);
 				GD.Print($"[SceneManager] 预加载完成，资源已缓存: {scenePath}");
+				
+				// 如果预加载资源缓存数量超过最大限制，则移除最旧的缓存项
+				if (_preloadResourceCacheAccessOrder.Count > _maxPreloadResourceCacheSize)
+				{
+					RemoveOldestPreloadResource();
+				}
 			}
 			else
 			{
@@ -397,6 +406,7 @@ namespace LongSceneManager
 			
 			// 清理预加载资源缓存（存储的是PackedScene资源）
 			_preloadResourceCache.Clear();
+			_preloadResourceCacheAccessOrder.Clear();
 			GD.Print("[SceneManager] 预加载资源缓存已清空");
 			
 			// 清理实例缓存（存储的是已实例化的场景节点）
@@ -545,6 +555,29 @@ namespace LongSceneManager
 			while (_cacheAccessOrder.Count > _maxCacheSize)
 			{
 				RemoveOldestCachedScene();
+			}
+		}
+		
+		/// <summary>
+		/// 设置预加载资源缓存最大大小
+		/// </summary>
+		/// <param name="newSize">新的预加载资源缓存最大大小</param>
+		public void SetMaxPreloadResourceCacheSize(int newSize)
+		{
+			// 检查输入值有效性
+			if (newSize < 1)
+			{
+				GD.PrintErr("[SceneManager] 错误：预加载资源缓存大小必须大于0");
+				return;
+			}
+			
+			_maxPreloadResourceCacheSize = newSize;
+			GD.Print($"[SceneManager] 设置预加载资源缓存最大大小: {_maxPreloadResourceCacheSize}");
+			
+			// 如果当前预加载资源缓存数量超过新设定的最大值，则移除最旧的缓存项
+			while (_preloadResourceCacheAccessOrder.Count > _maxPreloadResourceCacheSize)
+			{
+				RemoveOldestPreloadResource();
 			}
 		}
 		
@@ -741,8 +774,8 @@ namespace LongSceneManager
 		#region 场景切换处理函数
 		
 		/// <summary>
-		/// 处理使用预加载资源缓存的场景切换
-		/// 直接使用预加载的资源实例化场景
+		/// 处理使用预加载资源的场景切换
+		/// 从预加载资源缓存中获取场景资源并实例化
 		/// </summary>
 		/// <param name="scenePath">场景路径</param>
 		/// <param name="loadScreenInstance">加载屏幕实例</param>
@@ -750,7 +783,7 @@ namespace LongSceneManager
 		/// <returns>异步任务</returns>
 		private async Task HandlePreloadedResource(string scenePath, Node loadScreenInstance, bool useCache)
 		{
-			// 显示加载屏幕
+			// 处理预加载资源缓存的场景
 			await ShowLoadScreen(loadScreenInstance);
 			
 			// 从预加载资源缓存获取并移除
@@ -761,10 +794,18 @@ namespace LongSceneManager
 				return;
 			}
 			
+			// 从预加载资源缓存中移除（因为即将使用）
 			_preloadResourceCache.Remove(scenePath);
+			var index = _preloadResourceCacheAccessOrder.IndexOf(scenePath);
+			if (index != -1)
+			{
+				_preloadResourceCacheAccessOrder.RemoveAt(index);
+			}
 			
 			GD.Print($"[SceneManager] 实例化预加载资源: {scenePath}");
+			// 实例化场景
 			var newScene = packedScene.Instantiate();
+			// 执行实际的场景切换
 			await PerformSceneSwitch(newScene, scenePath, loadScreenInstance, useCache);
 		}
 		
@@ -787,7 +828,14 @@ namespace LongSceneManager
 			if (_loadingResource != null)
 			{
 				_preloadResourceCache[scenePath] = _loadingResource;
+				_preloadResourceCacheAccessOrder.Add(scenePath);
 				GD.Print($"[SceneManager] 预加载资源已缓存: {scenePath}");
+				
+				// 如果预加载资源缓存数量超过最大限制，则移除最旧的缓存项
+				if (_preloadResourceCacheAccessOrder.Count > _maxPreloadResourceCacheSize)
+				{
+					RemoveOldestPreloadResource();
+				}
 			}
 			
 			// 实例化并切换场景
@@ -1174,6 +1222,46 @@ namespace LongSceneManager
 				// 发送场景从缓存移除信号
 				EmitSignal(SignalName.SceneRemovedFromCache, oldestPath);
 				GD.Print($"[SceneManager] 移除旧缓存: {oldestPath}");
+			}
+		}
+		
+		/// <summary>
+		/// 更新预加载资源缓存访问记录
+		/// 将指定预加载资源标记为最近访问，更新其在LRU队列中的位置
+		/// </summary>
+		/// <param name="scenePath">场景路径</param>
+		private void UpdatePreloadResourceCacheAccess(string scenePath)
+		{
+			// 从访问顺序列表中移除该场景
+			var index = _preloadResourceCacheAccessOrder.IndexOf(scenePath);
+			if (index != -1)
+			{
+				_preloadResourceCacheAccessOrder.RemoveAt(index);
+			}
+			// 将该场景添加到访问顺序列表末尾（表示最近访问）
+			_preloadResourceCacheAccessOrder.Add(scenePath);
+		}
+		
+		/// <summary>
+		/// 移除最旧的预加载资源
+		/// 根据LRU策略移除最早未使用的预加载资源
+		/// </summary>
+		private void RemoveOldestPreloadResource()
+		{
+			// 检查预加载资源缓存是否为空
+			if (_preloadResourceCacheAccessOrder.Count == 0)
+			{
+				return;
+			}
+			
+			// 获取最早访问的场景路径
+			var oldestPath = _preloadResourceCacheAccessOrder[0];
+			_preloadResourceCacheAccessOrder.RemoveAt(0);
+			
+			// 从预加载资源缓存中移除该资源
+			if (_preloadResourceCache.Remove(oldestPath))
+			{
+				GD.Print($"[SceneManager] 移除旧预加载资源: {oldestPath}");
 			}
 		}
 		
