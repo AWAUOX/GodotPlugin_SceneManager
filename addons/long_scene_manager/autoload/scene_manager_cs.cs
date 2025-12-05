@@ -65,7 +65,11 @@ namespace LongSceneManager
 		[ExportCategory("场景管理器全局配置")]
 		// 导出变量，允许在编辑器中设置，限制范围为1-20
 		[Export(PropertyHint.Range, "1,20")] 
-		public int _maxCacheSize = 8;     // 最大缓存场景数量，默认为8个
+		private int _maxCacheSize = 8;     // 最大缓存场景数量，默认为8个
+		
+		// 导出变量，允许在编辑器中设置预加载资源缓存的最大容量，限制范围为1-50
+		[Export(PropertyHint.Range, "1,50")]
+		private int _maxPreloadResourceCacheSize = 20; // 预加载资源缓存最大容量，默认为20个
 		
 		// 导出布尔值变量，可在编辑器中设置
 		[Export] 
@@ -98,6 +102,9 @@ namespace LongSceneManager
 		
 		// 预加载资源缓存，存储预加载的PackedScene资源
 		private readonly System.Collections.Generic.Dictionary<string, PackedScene> _preloadResourceCache = new();
+		
+		// 预加载资源缓存的LRU访问顺序记录
+		private readonly List<string> _preloadResourceCacheAccessOrder = new();
 		
 		#endregion
 		
@@ -459,6 +466,8 @@ namespace LongSceneManager
 			result.Add("cached_scenes", cachedScenes);                  // 缓存的场景详情
 			result.Add("preload_resource_cache", preloadedScenes);      // 预加载资源缓存
 			result.Add("preload_cache_size", _preloadResourceCache.Count); // 预加载缓存大小
+			result.Add("max_preload_resource_cache_size", _maxPreloadResourceCacheSize); // 预加载缓存最大大小
+			result.Add("preload_resource_access_order", _preloadResourceCacheAccessOrder.ToArray()); // 预加载资源访问顺序
 			
 			return result;
 		}
@@ -1344,8 +1353,9 @@ namespace LongSceneManager
 			GD.Print($"当前场景: {(_currentScene != null ? _currentScenePath : "None")}");
 			GD.Print($"上一个场景: {_previousScenePath}");
 			GD.Print($"实例缓存数量: {_sceneCache.Count}/{_maxCacheSize}");
-			GD.Print($"预加载资源缓存数量: {_preloadResourceCache.Count}");
+			GD.Print($"预加载资源缓存数量: {_preloadResourceCache.Count}/{_maxPreloadResourceCacheSize}");
 			GD.Print($"缓存访问顺序: {string.Join(", ", _cacheAccessOrder)}");
+			GD.Print($"预加载资源缓存访问顺序: {string.Join(", ", _preloadResourceCacheAccessOrder)}");
 			GD.Print($"正在加载的场景: {(!string.IsNullOrEmpty(_loadingScenePath) ? _loadingScenePath : "None")}");
 			GD.Print($"加载状态: {_loadingState}");
 			GD.Print($"默认加载屏幕: {(_defaultLoadScreen != null ? "已加载" : "未加载")}");
