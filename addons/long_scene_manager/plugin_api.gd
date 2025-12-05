@@ -21,8 +21,11 @@ func _enter_tree() -> void:
 	add_custom_type(
 		"LongSceneManager",
 		"Node",
-		#preload("res://addons/long_scene_manager/autoload/scene_manager_cs.cs"),
+		
+		#choose gdscript or c# 
+		# preload("res://addons/long_scene_manager/autoload/scene_manager_cs.cs"),
 		preload("res://addons/long_scene_manager/autoload/scene_manager.gd"),
+
 		#preload("res://icon.svg")
 		icon
 	)

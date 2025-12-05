@@ -13,7 +13,6 @@ config_version=5
 config/name="Plugin_SceneManager"
 run/main_scene="uid://dlbvo51yl80p"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
-config/icon="res://icon.svg"
 
 [autoload]
 
@@ -30,4 +29,4 @@ project/assembly_name="Plugin_SceneManager"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/basic_scene_manager/plugin.cfg", "res://addons/long_scene_manager/plugin.cfg")
+enabled=PackedStringArray("res://addons/long_scene_manager/plugin.cfg")
