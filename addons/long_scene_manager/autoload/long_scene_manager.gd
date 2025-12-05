@@ -3,7 +3,7 @@ extends Node
 
 # 全局场景管理器插件
 # 支持自定义加载屏幕的场景切换、预加载和LRU缓存
-# 场景树和缓存分离设计：场景实例要么在场景树中，要么在缓存中
+# 场景树和缓存分离设计:场景实例要么在场景树中，要么在缓存中
 
 # ==================== 常量和枚举 ====================
 
@@ -51,7 +51,7 @@ var loading_resource: PackedScene = null
 var scene_cache: Dictionary = {}  # 存储从场景树移除的节点实例
 var cache_access_order: Array = []  # LRU缓存访问顺序记录
 
-# 新增：预加载资源缓存，存储预加载的PackedScene资源
+# 新增:预加载资源缓存，存储预加载的PackedScene资源
 var preload_resource_cache: Dictionary = {}
 var preload_resource_cache_access_order: Array = []  # 预加载资源缓存LRU访问顺序记录
 
@@ -100,7 +100,7 @@ func _init_default_load_screen():
 			print("[SceneManager] 默认加载屏幕加载成功")
 			return
 	
-	print("[SceneManager] 警告：默认加载屏幕文件不存在，创建简单版本")
+	print("[SceneManager] 警告:默认加载屏幕文件不存在，创建简单版本")
 	default_load_screen = _create_simple_load_screen()
 	add_child(default_load_screen)
 	
@@ -157,7 +157,7 @@ func switch_scene(new_scene_path: String, use_cache: bool = true, load_screen_pa
 		print("[SceneManager] 强制使用默认加载屏幕")
 	
 	if not ResourceLoader.exists(new_scene_path):
-		push_error("[SceneManager] 错误：目标场景路径不存在: ", new_scene_path)
+		push_error("[SceneManager] 错误:目标场景路径不存在: ", new_scene_path)
 		return
 	
 	scene_switch_started.emit(current_scene_path, new_scene_path)
@@ -169,7 +169,7 @@ func switch_scene(new_scene_path: String, use_cache: bool = true, load_screen_pa
 	
 	var load_screen_to_use = _get_load_screen_instance(load_screen_path)
 	if load_screen_path != "no_transition" and not load_screen_to_use:
-		push_error("[SceneManager] 错误：无法获取加载屏幕，切换中止")
+		push_error("[SceneManager] 错误:无法获取加载屏幕，切换中止")
 		return
 	
 	# 检查预加载资源缓存
@@ -195,7 +195,7 @@ func switch_scene(new_scene_path: String, use_cache: bool = true, load_screen_pa
 
 func preload_scene(scene_path: String) -> void:
 	if not ResourceLoader.exists(scene_path):
-		push_error("[SceneManager] 错误：预加载场景路径不存在: ", scene_path)
+		push_error("[SceneManager] 错误:预加载场景路径不存在: ", scene_path)
 		return
 	
 	# 检查是否已预加载或已缓存
@@ -321,7 +321,7 @@ func get_loading_progress(scene_path: String) -> float:
 
 func set_max_cache_size(new_size: int) -> void:
 	if new_size < 1:
-		push_error("[SceneManager] 错误：缓存大小必须大于0")
+		push_error("[SceneManager] 错误:缓存大小必须大于0")
 		return
 	
 	max_cache_size = new_size
@@ -333,7 +333,7 @@ func set_max_cache_size(new_size: int) -> void:
 # 添加设置预加载资源缓存最大容量的方法
 func set_max_preload_resource_cache_size(new_size: int) -> void:
 	if new_size < 1:
-		push_error("[SceneManager] 错误：预加载资源缓存大小必须大于0")
+		push_error("[SceneManager] 错误:预加载资源缓存大小必须大于0")
 		return
 	
 	max_preload_resource_cache_size = new_size
@@ -350,7 +350,7 @@ func _get_load_screen_instance(load_screen_path: String) -> Node:
 			print("[SceneManager] 使用默认加载屏幕")
 			return default_load_screen
 		else:
-			push_error("[SceneManager] 错误：默认加载屏幕未初始化")
+			push_error("[SceneManager] 错误:默认加载屏幕未初始化")
 			return null
 	elif load_screen_path == "no_transition":
 		print("[SceneManager] 使用无过渡模式")
@@ -364,10 +364,10 @@ func _get_load_screen_instance(load_screen_path: String) -> Node:
 				print("[SceneManager] 使用自定义加载屏幕: ", load_screen_path)
 				return instance
 			else:
-				print("[SceneManager] 警告：自定义加载屏幕加载失败，使用默认")
+				print("[SceneManager] 警告:自定义加载屏幕加载失败，使用默认")
 				return default_load_screen
 		else:
-			print("[SceneManager] 警告：自定义加载屏幕路径不存在，使用默认")
+			print("[SceneManager] 警告:自定义加载屏幕路径不存在，使用默认")
 			return default_load_screen
 
 func _show_load_screen(load_screen_instance: Node) -> void:
@@ -603,7 +603,7 @@ func _perform_scene_switch(new_scene: Node, new_scene_path: String, load_screen_
 
 func _add_to_cache(scene_path: String, scene_instance: Node) -> void:
 	if scene_path == "" or not scene_instance:
-		print("[SceneManager] 警告：无法缓存空场景或路径")
+		print("[SceneManager] 警告:无法缓存空场景或路径")
 		return
 	
 	if scene_cache.has(scene_path):
@@ -622,7 +622,7 @@ func _add_to_cache(scene_path: String, scene_instance: Node) -> void:
 	
 	# 如果节点仍在场景树中，这是错误状态
 	if scene_instance.is_inside_tree():
-		push_error("[SceneManager] 错误：尝试缓存仍在场景树中的节点")
+		push_error("[SceneManager] 错误:尝试缓存仍在场景树中的节点")
 		scene_instance.get_parent().remove_child(scene_instance)
 	
 	print("[SceneManager] 添加到实例缓存: ", scene_path)
@@ -744,7 +744,7 @@ func _cleanup_orphaned_nodes(root_node: Node) -> void:
 		_cleanup_orphaned_nodes(child)
 
 func _debug_validate_scene_tree() -> void:
-	# 调试用：验证场景树状态
+	# 调试用:验证场景树状态
 	var root = get_tree().root
 	var current = get_tree().current_scene
 	
@@ -755,7 +755,7 @@ func _debug_validate_scene_tree() -> void:
 	for scene_path in scene_cache:
 		var cached = scene_cache[scene_path]
 		if is_instance_valid(cached.scene_instance) and cached.scene_instance.is_inside_tree():
-			push_error("[SceneManager] 错误：缓存节点仍在场景树中: ", scene_path)
+			push_error("[SceneManager] 错误:缓存节点仍在场景树中: ", scene_path)
 
 # ==================== 信号连接辅助 ====================
 

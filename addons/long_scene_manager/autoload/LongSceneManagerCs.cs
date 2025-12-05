@@ -10,14 +10,14 @@ namespace LongSceneManagerCs
 	/// <summary>
 	/// 全局场景管理器插件
 	/// 
-	/// 这是一个用于Godot游戏引擎的场景管理器，提供了以下核心功能：
-	/// 1. 场景切换：可以在不同场景之间平滑切换
-	/// 2. 自定义加载屏幕：支持在场景切换时显示加载界面
-	/// 3. 预加载：提前加载场景资源以提高性能
-	/// 4. LRU缓存：缓存最近使用的场景实例以减少重复加载
-	/// 5. 场景树和缓存分离设计：场景实例要么在场景树中（当前活跃），要么在缓存中（非活跃但保留）
+	/// 这是一个用于Godot游戏引擎的场景管理器，提供了以下核心功能:
+	/// 1. 场景切换:可以在不同场景之间平滑切换
+	/// 2. 自定义加载屏幕:支持在场景切换时显示加载界面
+	/// 3. 预加载:提前加载场景资源以提高性能
+	/// 4. LRU缓存:缓存最近使用的场景实例以减少重复加载
+	/// 5. 场景树和缓存分离设计:场景实例要么在场景树中（当前活跃），要么在缓存中（非活跃但保留）
 	/// 
-	/// 使用方式：
+	/// 使用方式:
 	/// 在Godot项目中将其设为自动加载(AutoLoad)单例，然后通过调用SwitchScene等方法进行场景管理。
 	/// </summary>
 	public partial class LongSceneManagerCs : Node
@@ -187,7 +187,7 @@ namespace LongSceneManagerCs
 			}
 			
 			// 如果默认加载屏幕不存在，则创建一个简单的纯色加载屏幕
-			GD.Print("[SceneManager] 警告：默认加载屏幕文件不存在，创建简单版本");
+			GD.Print("[SceneManager] 警告:默认加载屏幕文件不存在，创建简单版本");
 			_defaultLoadScreen = CreateSimpleLoadScreen();
 			AddChild(_defaultLoadScreen);
 			
@@ -277,7 +277,7 @@ namespace LongSceneManagerCs
 			// 检查目标场景是否存在
 			if (!ResourceLoader.Exists(newScenePath))
 			{
-				GD.PrintErr($"[SceneManager] 错误：目标场景路径不存在: {newScenePath}");
+				GD.PrintErr($"[SceneManager] 错误:目标场景路径不存在: {newScenePath}");
 				return;
 			}
 			
@@ -296,7 +296,7 @@ namespace LongSceneManagerCs
 			var loadScreenToUse = GetLoadScreenInstance(loadScreenPath);
 			if (loadScreenPath != "no_transition" && loadScreenToUse == null)
 			{
-				GD.PrintErr("[SceneManager] 错误：无法获取加载屏幕，切换中止");
+				GD.PrintErr("[SceneManager] 错误:无法获取加载屏幕，切换中止");
 				return;
 			}
 			
@@ -355,7 +355,7 @@ namespace LongSceneManagerCs
 			// 检查场景路径是否存在
 			if (!ResourceLoader.Exists(scenePath))
 			{
-				GD.PrintErr($"[SceneManager] 错误：预加载场景路径不存在: {scenePath}");
+				GD.PrintErr($"[SceneManager] 错误:预加载场景路径不存在: {scenePath}");
 				return;
 			}
 			
@@ -588,7 +588,7 @@ namespace LongSceneManagerCs
 			// 检查输入值有效性
 			if (newSize < 1)
 			{
-				GD.PrintErr("[SceneManager] 错误：缓存大小必须大于0");
+				GD.PrintErr("[SceneManager] 错误:缓存大小必须大于0");
 				return;
 			}
 			
@@ -611,7 +611,7 @@ namespace LongSceneManagerCs
 			// 检查输入值有效性
 			if (newSize < 1)
 			{
-				GD.PrintErr("[SceneManager] 错误：预加载资源缓存大小必须大于0");
+				GD.PrintErr("[SceneManager] 错误:预加载资源缓存大小必须大于0");
 				return;
 			}
 			
@@ -647,7 +647,7 @@ namespace LongSceneManagerCs
 				}
 				else
 				{
-					GD.PrintErr("[SceneManager] 错误：默认加载屏幕未初始化");
+					GD.PrintErr("[SceneManager] 错误:默认加载屏幕未初始化");
 					return null;
 				}
 			}
@@ -674,13 +674,13 @@ namespace LongSceneManagerCs
 					}
 					else
 					{
-						GD.Print("[SceneManager] 警告：自定义加载屏幕加载失败，使用默认");
+						GD.Print("[SceneManager] 警告:自定义加载屏幕加载失败，使用默认");
 						return _defaultLoadScreen;
 					}
 				}
 				else
 				{
-					GD.Print("[SceneManager] 警告：自定义加载屏幕路径不存在，使用默认");
+					GD.Print("[SceneManager] 警告:自定义加载屏幕路径不存在，使用默认");
 					return _defaultLoadScreen;
 				}
 			}
@@ -1219,7 +1219,7 @@ namespace LongSceneManagerCs
 			// 检查参数有效性
 			if (string.IsNullOrEmpty(scenePath) || sceneInstance == null)
 			{
-				GD.Print("[SceneManager] 警告：无法缓存空场景或路径");
+				GD.Print("[SceneManager] 警告:无法缓存空场景或路径");
 				return;
 			}
 			
@@ -1246,7 +1246,7 @@ namespace LongSceneManagerCs
 			// 如果节点仍在场景树中，这是错误状态，强制移除
 			if (sceneInstance.IsInsideTree())
 			{
-				GD.PrintErr("[SceneManager] 错误：尝试缓存仍在场景树中的节点");
+				GD.PrintErr("[SceneManager] 错误:尝试缓存仍在场景树中的节点");
 				sceneInstance.GetParent().RemoveChild(sceneInstance);
 			}
 			
@@ -1474,7 +1474,7 @@ namespace LongSceneManagerCs
 		
 		private void DebugValidateSceneTree()
 		{
-			// 调试用：验证场景树状态
+			// 调试用:验证场景树状态
 			var root = GetTree().Root;
 			var current = GetTree().CurrentScene;
 			
@@ -1488,7 +1488,7 @@ namespace LongSceneManagerCs
 				var cached = kvp.Value;
 				if (IsInstanceValid(cached.SceneInstance) && cached.SceneInstance.IsInsideTree())
 				{
-					GD.PrintErr($"[SceneManager] 错误：缓存节点仍在场景树中: {scenePath}");
+					GD.PrintErr($"[SceneManager] 错误:缓存节点仍在场景树中: {scenePath}");
 				}
 			}
 		}
