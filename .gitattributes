@@ -1,21 +1,19 @@
-# Normalize EOL for all files that Git considers text files.
+# Normalize line endings for all files that Git considers text files.
 * text=auto eol=lf
 
-# Specify files and directories to exclude when exporting/archive creation
-# Exclude all files and directories except the plugin and demo
-README.md export-ignore
-README_中文.md export-ignore
-LICENSE export-ignore
-.editorconfig export-ignore
-.gitignore export-ignore
-.gitattributes export-ignore
-.vscode/ export-ignore
-.godot/ export-ignore
-Plugin_SceneManager.csproj export-ignore
-Plugin_SceneManager.sln export-ignore
-project.godot export-ignore
+# Use include pattern: exclude everything first, then selectively include needed folders
+# This ensures only the plugin and demo files are included when downloading from asset library
 
-# If you want to be more explicit, you can also use negative patterns:
-# Include only specific directories
-# !/addons/long_scene_manager/
-# !/demo_test_scene_manager/
+# Exclude everything first
+/*                               export-ignore
+/**                              export-ignore
+
+# Include the addon folder and its contents
+!/addons                         !export-ignore
+!/addons/                        !export-ignore
+!/addons/long_scene_manager      !export-ignore
+!/addons/long_scene_manager/**   !export-ignore
+
+# Include the demo/test folder and its contents
+!/demo_test_scene_manager        !export-ignore
+!/demo_test_scene_manager/**     !export-ignore
