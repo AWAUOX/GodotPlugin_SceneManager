@@ -945,7 +945,6 @@ func _cleanup_orphaned_nodes(root_node: Node) -> void:
 
 func _debug_validate_scene_tree() -> void:
 	# 调试用:验证场景树状态
-	# 调试用:验证场景树状态
 	var root = get_tree().root
 	var current = get_tree().current_scene
 	
