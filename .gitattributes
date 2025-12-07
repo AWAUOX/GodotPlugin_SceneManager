@@ -5,15 +5,15 @@
 # This ensures only the plugin and demo files are included when downloading from asset library
 
 # Exclude everything first
-/*                               export-ignore
-/**                              export-ignore
+# /*                               export-ignore
+# /**                              export-ignore
 
-# Include the addon folder and its contents
-!/addons                         !export-ignore
-!/addons/                        !export-ignore
-!/addons/long_scene_manager      !export-ignore
-!/addons/long_scene_manager/**   !export-ignore
+# # Include the addon folder and its contents
+# !/addons                         !export-ignore
+# !/addons/                        !export-ignore
+# !/addons/long_scene_manager      !export-ignore
+# !/addons/long_scene_manager/**   !export-ignore
 
-# Include the demo/test folder and its contents
-!/demo_test_scene_manager        !export-ignore
-!/demo_test_scene_manager/**     !export-ignore
+# # Include the demo/test folder and its contents
+# !/demo_test_scene_manager        !export-ignore
+# !/demo_test_scene_manager/**     !export-ignore
