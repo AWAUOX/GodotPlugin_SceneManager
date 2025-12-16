@@ -80,4 +80,3 @@ func _on_scene_switch_started(from_scene: String, to_scene: String):
 
 func _on_scene_switch_completed(scene_path: String):
 	print("场景1 - 切换完成: ", scene_path)
-

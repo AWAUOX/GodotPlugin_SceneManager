@@ -3,7 +3,7 @@
 [English Documentation](README.md)
 
 Long Scene Manager 是一个 Godot 插件，旨在简化和优化场景切换过程，特别是对于需要长时间加载的复杂场景。它通过提供异步场景加载、缓存机制和可定制的加载界面来改善用户体验。
-
+**重要：** 你需要使用CSharp Mono 版本来打开这个工程
 **注意：** 本文档仍在更新中。中文注解已经完整实现，但英文注解基本完善，案例项目除外。
 
 ## 图标
@@ -63,18 +63,18 @@ await LongSceneManager.switch_scene("res://scenes/level2.tscn")
 ### 2. 使用自定义加载屏幕切换场景
 ```gdscript
 await LongSceneManager.switch_scene(
-    "res://scenes/level2.tscn", 
-    true,  # 使用缓存
-    "res://ui/custom_load_screen.tscn"  # 自定义加载屏幕
+	"res://scenes/level2.tscn", 
+	true,  # 使用缓存
+	"res://ui/custom_load_screen.tscn"  # 自定义加载屏幕
 )
 ```
 
 ### 3. 无过渡效果切换场景
 ```gdscript
 await LongSceneManager.switch_scene(
-    "res://scenes/level2.tscn", 
-    true, 
-    "no_transition"  # 特殊值，表示无过渡
+	"res://scenes/level2.tscn", 
+	true, 
+	"no_transition"  # 特殊值，表示无过渡
 )
 ```
 

@@ -107,6 +107,3 @@ func _on_scene_switch_completed(scene_path: String):
 func _on_scene_cached(scene_path: String):
 	print("场景已缓存: ", scene_path)
 	_update_info_label()
-
-
-
